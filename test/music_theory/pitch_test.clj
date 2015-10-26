@@ -3,8 +3,34 @@
             [music-theory.test-helpers :refer (=ish)]
             [music-theory.pitch :refer :all]))
 
-(deftest pitch-tests
-  (testing "conversions"
+(deftest note-tests
+  (testing "representing notes as strings/keywords"
+    (comment "->Note constructs a Note record, which represents a note as an
+              unbounded MIDI note number.
+
+              ->note is a helper function that creates a Note record from a
+              string or keyword representing the note (letter + accidentals)
+              and octave.")
+    (is (= (->note "A-2")  (->Note -3)))
+    (is (= (->note "Bb-2") (->Note -2)))
+    (is (= (->note "B-2")  (->Note -1)))
+    (is (= (->note "B#-2")  (->Note 0)))
+    (is (= (->note "C-1")  (->Note 0)))
+    (is (= (->note "C0")   (->Note 12)))
+    (is (= (->note "C4")   (->Note 60)))
+    (is (= (->note :C4)    (->Note 60)))
+    (is (= (->note :Dbb4)  (->Note 60)))
+    (is (= (->note "C#4")  (->Note 61)))
+    (is (= (->note :C#4)   (->Note 61)))
+    (is (= (->note "Db4")  (->Note 61)))
+    (is (= (->note :D4)    (->Note 62)))
+    (is (= (->note :D##4)  (->Note 64)))
+    (is (= (->note "G9")   (->Note 127)))
+    (is (= (->note "G#9")  (->Note 128)))
+    (is (= (->note "A9")   (->Note 129)))))
+
+(deftest conversion-tests
+  (testing "conversions:"
     (testing "MIDI note -> frequency"
       (is (=ish (midi->hz 0) 8.176))       ; C-1
       (is (=ish (midi->hz 21) 27.5))       ; A0
