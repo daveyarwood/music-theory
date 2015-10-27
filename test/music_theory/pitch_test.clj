@@ -58,4 +58,16 @@
       (is (= (hz->midi 439) 69))
       (is (= (hz->midi 440) 69))
       (is (= (hz->midi 441) 69))
-      (is (= (hz->midi 8372) 120)))))
+      (is (= (hz->midi 8372) 120)))
+    (testing "note -> MIDI note"
+      (is (= (note->midi "C-1") 0))
+      (is (= (note->midi "A0") 21))
+      (is (= (note->midi "Eb1") 27))
+      (is (= (note->midi "Dbb4") 60))
+      (is (= (note->midi "A4") 69)))
+    (testing "note -> frequency"
+      (is (=ish (note->hz "C-1") 8.176))
+      (is (=ish (note->hz "A0") 27.5))
+      (is (=ish (note->hz "Eb1") 38.891))
+      (is (=ish (note->hz "Dbb4") 261.63))
+      (is (=ish (note->hz "A4") 440)))))

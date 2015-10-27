@@ -39,8 +39,8 @@
    Tuning is A440 by default. To calculate pitch based on an alternate
    reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
   [midi-note]
-  {:pre [(integer? midi-note)
-         (<= 0 midi-note 127)]}
+  {:pre  [(integer? midi-note)]
+   :post [(not (neg? %))]}
   (* *reference-pitch* (Math/pow 2 (/ (- midi-note 69) 12.0))))
 
 (defn hz->midi
@@ -53,3 +53,23 @@
    :post [(not (neg? %))]}
   (letfn [(log2 [n] (/ (Math/log n) (Math/log 2)))]
     (Math/round (+ 69 (* 12 (log2 (/ freq *reference-pitch*)))))))
+
+(defn note->midi
+  "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
+   the corresponding MIDI note number.
+
+   Throws an assertion error if the note is outside the range of MIDI notes
+   (0-127)."
+  [note]
+  {:post [(<= 0 % 127)]}
+  (:number (->note note)))
+
+(defn note->hz
+  "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
+   its frequency in hz.
+
+   Tuning is A440 by default. To calculate pitch based on an alternate
+   reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
+  [note]
+  {:post [(not (neg? %))]}
+  (-> (->note note) :number midi->hz))
