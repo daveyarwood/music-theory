@@ -71,3 +71,27 @@
       (is (=ish (note->hz "Eb1") 38.891))
       (is (=ish (note->hz "Dbb4") 261.63))
       (is (=ish (note->hz "A4") 440)))))
+
+(deftest tuning-tests
+  (testing "tune!"
+    (tune! 430)
+    (is (=ish (note->hz "A4") 430))
+    (is (=ish (note->hz "A3") 215))
+    (is (=ish (note->hz "A5") 860))
+    (tune! 432)
+    (is (=ish (note->hz "A4") 432))
+    (is (=ish (note->hz "A3") 216))
+    (is (=ish (note->hz "A5") 864))
+    (tune! 440))
+  (testing "with-reference-pitch"
+    (with-reference-pitch 430
+      (is (=ish (note->hz "A4") 430))
+      (is (=ish (note->hz "A3") 215))
+      (is (=ish (note->hz "A5") 860)))
+    (with-reference-pitch 432
+      (is (=ish (note->hz "A4") 432))
+      (is (=ish (note->hz "A3") 216))
+      (is (=ish (note->hz "A5") 864)))
+    (is (=ish (note->hz "A4") 440))
+    (is (=ish (note->hz "A3") 220))
+    (is (=ish (note->hz "A5") 880))))

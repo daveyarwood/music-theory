@@ -33,6 +33,19 @@
 
 (def ^:dynamic *reference-pitch* 440)
 
+(defn tune!
+  "Changes the reference pitch, which is the frequency of A4. (default: 440)"
+  [freq]
+  (alter-var-root #'*reference-pitch* (constantly freq)))
+
+(defmacro with-reference-pitch
+  "Executes the body, with *reference-pitch* bound to a given frequency."
+  [freq & body]
+  `(binding [*reference-pitch* ~freq]
+     ~@body))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn midi->hz
   "Converts a MIDI note (0-127) to its frequency in Hz.
 
