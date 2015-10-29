@@ -1,4 +1,5 @@
-(ns music-theory.pitch)
+(ns music-theory.pitch
+  #?(:cljs (:require-macros music-theory.pitch)))
 
 (defrecord Note [number])
 
@@ -32,40 +33,77 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def ^:dynamic *reference-pitch* 440)
+(def ^:dynamic *tuning-system* :equal)
 
-(defn tune!
+(defn set-reference-pitch!
   "Changes the reference pitch, which is the frequency of A4. (default: 440)"
   [freq]
   (alter-var-root #'*reference-pitch* (constantly freq)))
 
+#?(:clj
 (defmacro with-reference-pitch
   "Executes the body, with *reference-pitch* bound to a given frequency."
   [freq & body]
   `(binding [*reference-pitch* ~freq]
-     ~@body))
+     ~@body)))
+
+(defn set-tuning-system!
+  "Changes the tuning system. (default: :equal)"
+  [system]
+  (alter-var-root #'*tuning-system* (constantly system)))
+
+#?(:clj
+(defmacro with-tuning-system
+  "Executes the body, with *tuning-system* bound to a given tuning system"
+  [tuning & body]
+  `(binding [*tuning-system* ~tuning]
+     ~@body)))
+
+#?(:clj
+(defmacro with-tuning
+  "Executes the body, binding *tuning-system* and/or *reference-pitch* to a
+   particular tuning system and/or reference pitch.
+
+   The first argument can be either a number (representing a reference pitch),
+   a keyword (representing a tuning system), or a collection containing both."
+  [x & body]
+  `(let [[rp# ts#] (cond
+                     (number? ~x)  [~x *tuning-system*]
+                     (keyword? ~x) [*reference-pitch* ~x]
+                     (coll? ~x) [(or (first (filter number? ~x))
+                                     *reference-pitch*)
+                                 (or (first (filter keyword? ~x))
+                                     *tuning-system*)])]
+     (binding [*reference-pitch* rp#
+               *tuning-system* ts#]
+       ~@body))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn midi->hz
   "Converts a MIDI note (0-127) to its frequency in Hz.
 
-   Tuning is A440 by default. To calculate pitch based on an alternate
+   Reference pitch is A440 by default. To calculate pitch based on an alternate
    reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
   [midi-note]
   {:pre  [(integer? midi-note)]
    :post [(not (neg? %))]}
-  (* *reference-pitch* (Math/pow 2 (/ (- midi-note 69) 12.0))))
+  (case *tuning-system*
+    :equal
+    (* *reference-pitch* (Math/pow 2 (/ (- midi-note 69) 12.0)))))
 
 (defn hz->midi
   "Converts a frequency in Hz to the closest MIDI note.
 
-   Tuning is A440 by default. To calculate pitch based on an alternate
+   Reference pitch is A440 by default. To calculate pitch based on an alternate
    reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
   [freq]
   {:pre  [(number? freq) (pos? freq)]
    :post [(not (neg? %))]}
-  (letfn [(log2 [n] (/ (Math/log n) (Math/log 2)))]
-    (Math/round (+ 69 (* 12 (log2 (/ freq *reference-pitch*)))))))
+  (case *tuning-system*
+    :equal
+    (letfn [(log2 [n] (/ (Math/log n) (Math/log 2)))]
+      (Math/round (+ 69 (* 12 (log2 (/ freq *reference-pitch*))))))))
 
 (defn note->midi
   "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
@@ -81,7 +119,7 @@
   "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
    its frequency in hz.
 
-   Tuning is A440 by default. To calculate pitch based on an alternate
+   Reference pitch is A440 by default. To calculate pitch based on an alternate
    reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
   [note]
   {:post [(not (neg? %))]}

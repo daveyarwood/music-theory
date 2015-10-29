@@ -73,16 +73,16 @@
       (is (=ish (note->hz "A4") 440)))))
 
 (deftest tuning-tests
-  (testing "tune!"
-    (tune! 430)
+  (testing "set-reference-pitch!"
+    (set-reference-pitch! 430)
     (is (=ish (note->hz "A4") 430))
     (is (=ish (note->hz "A3") 215))
     (is (=ish (note->hz "A5") 860))
-    (tune! 432)
+    (set-reference-pitch! 432)
     (is (=ish (note->hz "A4") 432))
     (is (=ish (note->hz "A3") 216))
     (is (=ish (note->hz "A5") 864))
-    (tune! 440))
+    (set-reference-pitch! 440))
   (testing "with-reference-pitch"
     (with-reference-pitch 430
       (is (=ish (note->hz "A4") 430))
