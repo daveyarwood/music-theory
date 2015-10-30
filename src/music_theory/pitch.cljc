@@ -38,7 +38,8 @@
 (defn set-reference-pitch!
   "Changes the reference pitch, which is the frequency of A4. (default: 440)"
   [freq]
-  (alter-var-root #'*reference-pitch* (constantly freq)))
+  #?(:clj  (alter-var-root #'*reference-pitch* (constantly freq))
+     :cljs (set! *reference-pitch* freq)))
 
 #?(:clj
 (defmacro with-reference-pitch
@@ -50,7 +51,8 @@
 (defn set-tuning-system!
   "Changes the tuning system. (default: :equal)"
   [system]
-  (alter-var-root #'*tuning-system* (constantly system)))
+  #?(:clj  (alter-var-root #'*tuning-system* (constantly system))
+     :cljs (set! *tuning-system* system)))
 
 #?(:clj
 (defmacro with-tuning-system

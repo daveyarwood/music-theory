@@ -2,10 +2,12 @@
   :source-paths #{"src" "test"}
   :dependencies '[[org.clojure/clojure "1.7.0"]
                   [adzerk/bootlaces    "0.1.12" :scope "test"]
-                  [adzerk/boot-test    "1.0.4"  :scope "test"]])
+                  [adzerk/boot-test    "1.0.4"  :scope "test"]
+                  [crisptrutski/boot-cljs-test "0.2.0-SNAPSHOT" :scope "test"]])
 
 (require '[adzerk.bootlaces :refer :all]
-         '[adzerk.boot-test :refer :all])
+         '[adzerk.boot-test :refer :all]
+         '[crisptrutski.boot-cljs-test :refer (test-cljs)])
 
 (def +version+ "0.1.0")
 
@@ -20,3 +22,26 @@
        :license {"name" "Eclipse Public License"
                  "url" "http://www.eclipse.org/legal/epl-v10.html"}}
   test {:namespaces '#{music-theory.pitch-test}})
+
+(deftask space
+  []
+  (with-pre-wrap fs
+    (println)
+    fs))
+
+(deftask print-heading
+  [H heading HEADING str "The heading to print."]
+  (with-pre-wrap fs
+    (println "---" heading "---")
+    fs))
+
+(deftask tests
+  "Runs tests for both Clojure and ClojureScript."
+  []
+  (comp
+   (print-heading :heading "Clojure tests")
+   (test)
+   (space)
+   (print-heading :heading "ClojureScript tests")
+   (space)
+   (test-cljs)))
