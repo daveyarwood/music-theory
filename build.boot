@@ -21,7 +21,8 @@
        :scm {:url "https://github.com/daveyarwood/music-theory"}
        :license {"name" "Eclipse Public License"
                  "url" "http://www.eclipse.org/legal/epl-v10.html"}}
-  test {:namespaces '#{music-theory.pitch-test}})
+  test {:namespaces '#{music-theory.pitch-test
+                       music-theory.duration-test}})
 
 (deftask space
   []
