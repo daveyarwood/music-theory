@@ -39,15 +39,32 @@
     (is (=ish (dur/dots 3 dur/QUARTER) 2.133 (/ 32 15)))
     (is (=ish (dur/dots 4 dur/QUARTER) 2.065 (/ 64 31)))))
 
+(deftest string-shorthand-test
+  (testing "string shorthand for note lengths"
+    (is (=ish (dur/->note-length "4")    dur/QUARTER))
+    (is (=ish (dur/->note-length "2")    dur/HALF))
+    (is (=ish (dur/->note-length "2.")   (dur/dots 1 dur/HALF)))
+    (is (=ish (dur/->note-length "2..")  (dur/dots 2 dur/HALF)))
+    (is (=ish (dur/->note-length "2...") (dur/dots 3 dur/HALF)))))
+
 (deftest beats-test
   (testing "note value(s) -> beats conversion"
     (is (=ish (dur/beats dur/QUARTER) 1))
     (is (=ish (dur/beats (dur/dots 1 dur/QUARTER)) 1.5))
+    (is (=ish (dur/beats "4.") 1.5))
     (is (=ish (dur/beats (dur/dots 2 dur/QUARTER)) 1.75))
+    (is (=ish (dur/beats "4..") 1.75))
     (is (=ish (dur/beats (dur/dots 3 dur/QUARTER)) 1.875))
+    (is (=ish (dur/beats "4...") 1.875))
     (is (=ish (dur/beats (dur/dots 1 dur/QUARTER)
                          (dur/dots 1 dur/QUARTER)) 3))
-    (is (=ish (dur/beats dur/WHOLE dur/HALF dur/QUARTER) 7))))
+    (is (=ish (dur/beats "4." "4.") 3))
+    (is (=ish (dur/beats "4." (dur/dots 1 dur/QUARTER)) 3))
+    (is (=ish (dur/beats (dur/dots 1 dur/QUARTER) "4.") 3))
+    (is (=ish (dur/beats dur/WHOLE dur/HALF dur/QUARTER) 7))
+    (is (=ish (dur/beats "1" "2" "4") 7))
+    (is (=ish (dur/beats "1" "2" "2") 8))
+    (is (=ish (dur/beats "1" "2" "2.") 9))))
 
 (deftest duration-tests
   (testing "beats -> duration (ms) conversion"

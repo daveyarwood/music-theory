@@ -1,31 +1,6 @@
 (ns music-theory.duration)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; beats -> duration (ms)
-
-(defn duration-ms
-  "Given a number of beats and a tempo, calculates the duration in
-   milliseconds."
-  [beats tempo]
-  (* beats (/ 60000.0 tempo)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; note lengths -> beats
-
-(defn beats
-  "Converts a note value to a number of beats.
-
-   e.g.
-   An eighth note has a note value of 8, and equals 0.5 beats.
-   A quarter note has a note value of 4, and equals 1 beat.
-   A half note has a note value of 2, and equals 2 beats.
-   A whole note has a note value of 1, and equals 4 beats.
-
-   When given more than one note value, adds them up and returns the sum."
-  [& note-values]
-  (apply + (for [note-value note-values] (/ 4 note-value))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; note lengths
 
 ; US
@@ -82,3 +57,66 @@
         denom (dec (* numer 2))
         ratio (/ numer denom)]
     (* note-length ratio)))
+
+(defn ->note-length
+  "Given a string representation of a note length, returns its numeric value.
+
+   A string representation of a note length consists of a number representing a
+   note value (e.g. '2' = a half note), followed by any number of dots.
+
+   e.g.
+   (->note-length '4') =>  4         (quarter note)
+   (->note-length '4.') => 2.6666... (dotted quarter note)"
+  [string]
+  (let [[note-value ds] (rest (re-matches #"(\d+)(\.+)?" string))]
+    (if note-value
+      (let [note-value (#?(:clj  Integer/parseInt
+                           :cljs js/Number)
+                        note-value)
+            ds (count (seq ds))]
+        (dots ds note-value))
+      (throw (new #?(:clj  Exception
+                     :cljs js/Error)
+                  "Invalid note-length format.")))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; note lengths -> beats
+
+(defn beats
+  "Converts a note value to a number of beats.
+
+   e.g.
+   An eighth note has a note value of 8, and equals 0.5 beats.
+   A quarter note has a note value of 4, and equals 1 beat.
+   A half note has a note value of 2, and equals 2 beats.
+   A whole note has a note value of 1, and equals 4 beats.
+
+   When given more than one note value, adds them up and returns the sum.
+
+   Note values can be provided as either numbers, note-length constants (which
+   are numbers), or strings consisting of an integer note value followed by any
+   number of dots.
+
+   e.g.
+   (beats 1 2 4 8)
+   (beats WHOLE HALF QUARTER EIGHTH)
+   (beats '1.' '2..' 4 SIXTEENTH)"
+  [& note-values]
+  (apply + (for [x note-values]
+             (let [note-value (cond
+                                (string? x) (->note-length x)
+                                (number? x) x
+                                :else (throw (new #?(:clj  Exception
+                                                     :cljs js/Error)
+                                                  "Invalid note-length(s).")))]
+               (/ 4.0 note-value)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; beats -> duration (ms)
+
+(defn duration-ms
+  "Given a number of beats and a tempo, calculates the duration in
+   milliseconds."
+  [beats tempo]
+  (* beats (/ 60000.0 tempo)))
+
