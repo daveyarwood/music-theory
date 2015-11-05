@@ -80,3 +80,11 @@
     (is (=ish (dur/duration-ms 2 60)) 2000)
     (is (=ish (dur/duration-ms 2 90)) 1500)
     (is (=ish (dur/duration-ms 2 120)) 1000)))
+
+(deftest measure-tests
+  (testing "measure length validation"
+    (is (dur/measure? #?(:clj 4/4 :cljs (/ 4 4)) [dur/WHOLE]))
+    (is (dur/measure? #?(:clj 4/4 :cljs (/ 4 4)) [4 4 4 4]))
+    (is (dur/measure? #?(:clj 4/4 :cljs (/ 4 4)) [4 4 "4." 8]))
+    (is (dur/measure? #?(:clj 3/8 :cljs (/ 3 8)) [8 8 8]))
+    (is (dur/measure? #?(:clj 3/8 :cljs (/ 3 8)) [dur/QUARTER dur/EIGHTH]))))

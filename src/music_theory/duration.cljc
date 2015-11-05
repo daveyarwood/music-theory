@@ -120,3 +120,20 @@
   [beats tempo]
   (* beats (/ 60000.0 tempo)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; measures
+
+(defn measure?
+  "Returns true if the provided note-lengths equal exactly one measure in the
+   provided time-signature.
+
+   `time-signature` is represented as a fraction, e.g. 4/4 (or (/ 4 4) in
+   ClojureScript)
+
+   `note-lengths` is a collection of note values, which may be represented as
+   numbers (e.g. 4 is a quarter note), constants (e.g. EIGHTH), or strings
+   consisting of a note value and any number of dots (e.g. '2..')
+
+   (measure? 4/4 [4 4 '4..' 16]) => true"
+  [time-signature note-lengths]
+  (== (* 4 time-signature) (apply beats note-lengths)))
