@@ -87,6 +87,56 @@
   [& note-lengths]
   (/ 4.0 (apply beats note-lengths)))
 
+(defn tuplet
+  "Applies a tuplet ratio to each note length and returns the sum of the
+   adjusted note lengths.
+
+   For more information about tuplets:
+   http://www2.siba.fi/muste1/index.php?id=100&la=en
+
+   e.g.:
+   - A single quarter note triplet is mathematically a 'sixth note', since six
+     of them will fit into a whole note.
+   - A single quarter note triplet therefore has a value of 6, mathematically
+     speaking.
+   - From a musician's perspective, a quarter note triplet (as in 3 notes) is
+     three (3) quarter notes stuffed into the duration of a half note (2).
+   - The ratio of this type of note is therefore 3/2.
+   - Similarly, a 'duplet' (e.g. two eighth notes spread across a bar of 3/8)
+     has a 2/3 ratio. In other words, 4 notes spread across a bar of 6/8 has a
+     4/6 ratio, which is the same ratio, mathematically.
+
+   NOTE: in ClojureScript, ratios must be expressed like (/ 2 3)
+
+   (tuplet 2/3 4) => 6
+   (tuplet 2/3 4 4 4) => 2"
+  [ratio & note-lengths]
+  (apply note-length+ (map (partial * ratio) note-lengths)))
+
+(defn duplet
+  "Applies the duplet ratio 2/3 to each note length and returns the sum of the
+   adjusted note lengths."
+  [& note-lengths]
+  (apply tuplet #?(:clj 2/3 :cljs (/ 2 3)) note-lengths))
+
+(defn triplet
+  "Applies the triplet ratio 3/2 to each note length and returns the sum of the
+   adjusted note lengths."
+  [& note-lengths]
+  (apply tuplet #?(:clj 3/2 :cljs (/ 3 2)) note-lengths))
+
+(defn quadruplet
+  "Applies the quadruplet ratio 4/3 to each note length and returns the sum of
+   the adjusted note lengths."
+  [& note-lengths]
+  (apply tuplet #?(:clj 4/3 :cljs (/ 4 3)) note-lengths))
+
+(defn quintuplet
+  "Applies the quintuplet ratio 5/4 to each note length and returns the sum of
+   the adjusted note lengths."
+  [& note-lengths]
+  (apply tuplet #?(:clj 5/4 :cljs (/ 5 4)) note-lengths))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; note lengths -> beats
 

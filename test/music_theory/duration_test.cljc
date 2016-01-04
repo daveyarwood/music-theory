@@ -46,6 +46,23 @@
     (is (=ish (dur/dots 3 dur/QUARTER) 2.133 (/ 32 15)))
     (is (=ish (dur/dots 4 dur/QUARTER) 2.065 (/ 64 31)))))
 
+(deftest tuplet-tests
+  (testing "tuplets"
+    (is (=ish (dur/tuplet #?(:clj 3/2 :cljs (/ 3 2)) 4)
+              (dur/triplet 4)
+              6))
+    (is (=ish (dur/tuplet #?(:clj 3/2 :cljs (/ 3 2)) 4 4 4)
+              (dur/triplet 4 4 4)
+              2))
+    (is (=ish (dur/tuplet #?(:clj 3/2 :cljs (/ 3 2)) 2 4)
+              (dur/triplet 2 4)
+              2))
+    (is (=ish (dur/tuplet #?(:clj 2/3 :cljs (/ 2 3)) 8 8)
+              (dur/duplet 8 8)
+              (dur/note-length+ 8 8 8)))
+    (is (=ish (dur/tuplet #?(:clj 4/5 :cljs (/ 4 5)) 8 8 8 8)
+              (dur/note-length+ 8 8 8 8 8)))))
+
 (deftest string-shorthand-test
   (testing "string shorthand for note lengths"
     (is (=ish (dur/->note-length "4")    dur/QUARTER))
@@ -73,7 +90,10 @@
     (is (=ish (dur/beats "1" "2" "2") 8))
     (is (=ish (dur/beats "1" "2" "2.") 9))
     (is (=ish (dur/beats [4 4 4 4]) 4))
-    (is (=ish (dur/beats ["2." 8]) 3.5))))
+    (is (=ish (dur/beats ["2." 8]) 3.5))
+    (is (=ish (dur/beats (dur/tuplet (/ 3 2) 4 4 4)) 2))
+    (is (=ish (dur/beats (dur/triplet 4 4 4)) 2))
+    (is (=ish (dur/beats (dur/triplet 4 4 4 4 4 4)) 4))))
 
 (deftest duration-tests
   (testing "beats -> duration (ms) conversion"
