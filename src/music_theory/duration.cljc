@@ -79,6 +79,14 @@
                      :cljs js/Error)
                   "Invalid note-length format.")))))
 
+(declare beats)
+(defn note-length+
+  "Adds together a variable number of note-lengths.
+
+   e.g. 4 + 4 = 2    (quarter + quarter = half)"
+  [& note-lengths]
+  (/ 4.0 (apply beats note-lengths)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; note lengths -> beats
 
@@ -97,15 +105,19 @@
    are numbers), or strings consisting of an integer note value followed by any
    number of dots.
 
+   A collection of note values (e.g. a measure) is also an acceptable value.
+
    e.g.
    (beats 1 2 4 8)
    (beats WHOLE HALF QUARTER EIGHTH)
-   (beats '1.' '2..' 4 SIXTEENTH)"
+   (beats '1.' '2..' 4 SIXTEENTH)
+   (beats [4 4 4 4])"
   [& note-values]
   (apply + (for [x note-values]
              (let [note-value (cond
                                 (string? x) (->note-length x)
                                 (number? x) x
+                                (coll? x)   (apply note-length+ x)
                                 :else (throw (new #?(:clj  Exception
                                                      :cljs js/Error)
                                                   "Invalid note-length(s).")))]

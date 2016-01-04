@@ -26,6 +26,13 @@
     (is (= dur/HEMIDEMISEMIQUAVER     64))
     (is (= dur/SEMIHEMIDEMISEMIQUAVER 128))))
 
+(deftest note-length-addition-tests
+  (testing "adding together note lengths"
+    (is (=ish (dur/note-length+ 4 4) 2))
+    (is (=ish (dur/note-length+ 4 8) 2.666))
+    (is (=ish (dur/note-length+ 4 4 4) 1.333))
+    (is (=ish (dur/note-length+ 2 4 8 8) 1))))
+
 (deftest dot-tests
   (testing "dotted note lengths"
     (is (=ish (dur/dots 0 dur/HALF) 2))
@@ -64,7 +71,9 @@
     (is (=ish (dur/beats dur/WHOLE dur/HALF dur/QUARTER) 7))
     (is (=ish (dur/beats "1" "2" "4") 7))
     (is (=ish (dur/beats "1" "2" "2") 8))
-    (is (=ish (dur/beats "1" "2" "2.") 9))))
+    (is (=ish (dur/beats "1" "2" "2.") 9))
+    (is (=ish (dur/beats [4 4 4 4]) 4))
+    (is (=ish (dur/beats ["2." 8]) 3.5))))
 
 (deftest duration-tests
   (testing "beats -> duration (ms) conversion"
