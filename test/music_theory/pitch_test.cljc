@@ -2,6 +2,7 @@
   (:require #?(:clj  [clojure.test :refer :all]
                :cljs [cljs.test :refer-macros (deftest testing is)])
             [music-theory.test-helpers :refer (=ish)]
+            [music-theory.note  :as note]
             [music-theory.pitch :as pitch]))
 
 (deftest note-tests
@@ -12,26 +13,32 @@
               ->note is a helper function that creates a Note record from a
               string or keyword representing the note (letter + accidentals)
               and octave.")
-    (is (= (pitch/->note "A-2")  (pitch/->Note -3)))
-    (is (= (pitch/->note "Bb-2") (pitch/->Note -2)))
-    (is (= (pitch/->note "B-2")  (pitch/->Note -1)))
-    (is (= (pitch/->note "B#-2") (pitch/->Note 0)))
-    (is (= (pitch/->note "C-1")  (pitch/->Note 0)))
-    (is (= (pitch/->note "C0")   (pitch/->Note 12)))
-    (is (= (pitch/->note "C4")   (pitch/->Note 60)))
-    (is (= (pitch/->note :C4)    (pitch/->Note 60)))
-    (is (= (pitch/->note :Dbb4)  (pitch/->Note 60)))
-    (is (= (pitch/->note "C#4")  (pitch/->Note 61)))
-    (is (= (pitch/->note :C#4)   (pitch/->Note 61)))
-    (is (= (pitch/->note "Db4")  (pitch/->Note 61)))
-    (is (= (pitch/->note :D4)    (pitch/->Note 62)))
-    (is (= (pitch/->note :D##4)  (pitch/->Note 64)))
-    (is (= (pitch/->note "G9")   (pitch/->Note 127)))
-    (is (= (pitch/->note "G#9")  (pitch/->Note 128)))
-    (is (= (pitch/->note "A9")   (pitch/->Note 129)))))
+    (is (= (note/->note "A-2")  (note/->Note -3)))
+    (is (= (note/->note "Bb-2") (note/->Note -2)))
+    (is (= (note/->note "B-2")  (note/->Note -1)))
+    (is (= (note/->note "B#-2") (note/->Note 0)))
+    (is (= (note/->note "C-1")  (note/->Note 0)))
+    (is (= (note/->note "C0")   (note/->Note 12)))
+    (is (= (note/->note "C4")   (note/->Note 60)))
+    (is (= (note/->note :C4)    (note/->Note 60)))
+    (is (= (note/->note :Dbb4)  (note/->Note 60)))
+    (is (= (note/->note "C#4")  (note/->Note 61)))
+    (is (= (note/->note :C#4)   (note/->Note 61)))
+    (is (= (note/->note "Db4")  (note/->Note 61)))
+    (is (= (note/->note :D4)    (note/->Note 62)))
+    (is (= (note/->note :D##4)  (note/->Note 64)))
+    (is (= (note/->note "G9")   (note/->Note 127)))
+    (is (= (note/->note "G#9")  (note/->Note 128)))
+    (is (= (note/->note "A9")   (note/->Note 129)))))
 
 (deftest conversion-tests
   (testing "conversions:"
+    (testing "note -> MIDI note"
+      (is (= (note/note->midi "C-1") 0))
+      (is (= (note/note->midi "A0") 21))
+      (is (= (note/note->midi "Eb1") 27))
+      (is (= (note/note->midi "Dbb4") 60))
+      (is (= (note/note->midi "A4") 69)))
     (testing "MIDI note -> frequency"
       (is (=ish (pitch/midi->hz 0) 8.176))       ; C-1
       (is (=ish (pitch/midi->hz 21) 27.5))       ; A0
@@ -60,12 +67,6 @@
       (is (= (pitch/hz->midi 440) 69))
       (is (= (pitch/hz->midi 441) 69))
       (is (= (pitch/hz->midi 8372) 120)))
-    (testing "note -> MIDI note"
-      (is (= (pitch/note->midi "C-1") 0))
-      (is (= (pitch/note->midi "A0") 21))
-      (is (= (pitch/note->midi "Eb1") 27))
-      (is (= (pitch/note->midi "Dbb4") 60))
-      (is (= (pitch/note->midi "A4") 69)))
     (testing "note -> frequency"
       (is (=ish (pitch/note->hz "C-1") 8.176))
       (is (=ish (pitch/note->hz "A0") 27.5))
@@ -75,15 +76,15 @@
 
 (deftest key-tests
   (testing "set-key!"
-    (pitch/set-key! :c :major)
+    (pitch/set-key! :c# :major)
     (is (= pitch/*tonic* :c))
     (is (= pitch/*scale-type* :major))
-    (pitch/set-key! :d :minor)
+    (pitch/set-key! :d# :minor)
     (is (= pitch/*tonic* :d))
     (is (= pitch/*scale-type* :minor)))
   (testing "with-key"
-    (pitch/with-key :f-sharp :major
-      (is (= pitch/*tonic* :f-sharp))
+    (pitch/with-key :f# :major
+      (is (= pitch/*tonic* :f#))
       (is (= pitch/*scale-type* :major)))))
 
 (deftest tuning-tests

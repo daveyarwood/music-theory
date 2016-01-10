@@ -1,36 +1,7 @@
 (ns music-theory.pitch
-  #?(:cljs (:require-macros music-theory.pitch)))
-
-(defrecord Note [number])
-
-(def ^:private intervals
-  {"C" 0, "D" 2, "E" 4, "F" 5, "G" 7, "A" 9, "B" 11})
-
-(defn ->note
-  "Creates a Note record, which represents a note as an unbounded MIDI note
-   number, from a string or keyword describing the note in scientific pitch
-   notation, i.e. a letter and (optionally) any number of sharps and flats.
-
-   e.g. C#5, Dbb4, E0"
-  [x]
-  (let [s (name x)
-        [letter accs octave] (rest (re-matches #"([A-G])([#b]*)(-?\d+)" s))]
-    (if (and letter accs octave)
-      (let [octave (#?(:clj  Integer/parseInt
-                       :cljs js/Number)
-                    octave)
-            base-note (+ (intervals letter) (* octave 12) 12)]
-        (->Note (reduce (fn [note-number accidental]
-                          (case accidental
-                            \# (inc note-number)
-                            \b (dec note-number)))
-                        base-note
-                        accs)))
-      (throw (new #?(:clj  Exception
-                     :cljs js/Error)
-                  "Invalid note format.")))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  #?(:cljs (:require-macros music-theory.pitch))
+  (:require [music-theory.note          :as note]
+            [music-theory.pitch.tunings :as tunings]))
 
 (def ^:dynamic *reference-pitch* 440)
 (def ^:dynamic *tuning-system* :equal)
@@ -110,36 +81,27 @@
   "Converts a MIDI note (0-127) to its frequency in Hz.
 
    Reference pitch is A440 by default. To calculate pitch based on an alternate
-   reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
+   reference pitch (e.g. A430), set or bind *reference-pitch* to the frequency
+   of A4.
+
+   Tuning system is equal temperament by default. To calculate pitch based on
+   an alternate tuning system (e.g. well temperament), set or bind
+   *tuning-system* to a valid keyword representing that tuning system."
   [midi-note]
   {:pre  [(integer? midi-note)]
    :post [(not (neg? %))]}
   (case *tuning-system*
     :equal
-    (* *reference-pitch* (Math/pow 2 (/ (- midi-note 69) 12.0)))))
+    (tunings/equal-> *reference-pitch* midi-note)
 
-(defn hz->midi
-  "Converts a frequency in Hz to the closest MIDI note.
+    :well ; (the default is, somewhat arbitrarily, Werckmeister III)
+    (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
 
-   Reference pitch is A440 by default. To calculate pitch based on an alternate
-   reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
-  [freq]
-  {:pre  [(number? freq) (pos? freq)]
-   :post [(not (neg? %))]}
-  (case *tuning-system*
-    :equal
-    (letfn [(log2 [n] (/ (Math/log n) (Math/log 2)))]
-      (Math/round (+ 69 (* 12 (log2 (/ freq *reference-pitch*))))))))
+    :werckmeister
+    (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
 
-(defn note->midi
-  "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
-   the corresponding MIDI note number.
-
-   Throws an assertion error if the note is outside the range of MIDI notes
-   (0-127)."
-  [note]
-  {:post [(<= 0 % 127)]}
-  (:number (->note note)))
+    :werckmeister-iii
+    (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)))
 
 (defn note->hz
   "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
@@ -149,4 +111,22 @@
    reference pitch (e.g. A430), bind *reference-pitch* to the frequency of A4."
   [note]
   {:post [(not (neg? %))]}
-  (-> (->note note) :number midi->hz))
+  (-> (note/->note note) :number midi->hz))
+
+(defn hz->midi
+  "Converts a frequency in Hz to the closest MIDI note.
+
+   Reference pitch is A440 by default. To calculate pitch based on an alternate
+   reference pitch (e.g. A430), set or bind *reference-pitch* to the frequency
+   of A4.
+
+   Tuning system is equal temperament by default. To calculate pitch based on
+   an alternate tuning system (e.g. well temperament), set or bind
+   *tuning-system* to a valid keyword representing that tuning system."
+  [freq]
+  {:pre  [(number? freq) (pos? freq)]
+   :post [(not (neg? %))]}
+  (case *tuning-system*
+    :equal
+    (tunings/<-equal *reference-pitch* freq)))
+
