@@ -73,6 +73,19 @@
       (is (=ish (pitch/note->hz "Dbb4") 261.63))
       (is (=ish (pitch/note->hz "A4") 440)))))
 
+(deftest key-tests
+  (testing "set-key!"
+    (pitch/set-key! :c :major)
+    (is (= pitch/*tonic* :c))
+    (is (= pitch/*scale-type* :major))
+    (pitch/set-key! :d :minor)
+    (is (= pitch/*tonic* :d))
+    (is (= pitch/*scale-type* :minor)))
+  (testing "with-key"
+    (pitch/with-key :f-sharp :major
+      (is (= pitch/*tonic* :f-sharp))
+      (is (= pitch/*scale-type* :major)))))
+
 (deftest tuning-tests
   (testing "set-reference-pitch!"
     (pitch/set-reference-pitch! 430)

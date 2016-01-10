@@ -34,6 +34,8 @@
 
 (def ^:dynamic *reference-pitch* 440)
 (def ^:dynamic *tuning-system* :equal)
+(def ^:dynamic *tonic* nil)
+(def ^:dynamic *scale-type* :major)
 
 (defn set-reference-pitch!
   "Changes the reference pitch, which is the frequency of A4. (default: 440)"
@@ -48,6 +50,25 @@
   `(binding [*reference-pitch* ~freq]
      ~@body)))
 
+(defn set-key!
+  "Sets the key, which is required by some tuning systems in order to calculate
+   the frequency of a note in Hz."
+  ([tonic]
+    (set-key! tonic :major))
+  ([tonic scale-type]
+    #?(:clj  (alter-var-root #'*tonic* (constantly tonic))
+       :cljs (set! *tonic* tonic))
+    #?(:clj  (alter-var-root #'*scale-type* (constantly scale-type))
+       :cljs (set! *scale-type* scale-type))))
+
+#?(:clj
+(defmacro with-key
+  "Executes the body, with *tonic* and *scale-type* bound to those provided."
+  [tonic scale-type & body]
+  `(binding [*tonic*      ~tonic
+             *scale-type* ~scale-type]
+     ~@body)))
+
 (defn set-tuning-system!
   "Changes the tuning system. (default: :equal)"
   [system]
@@ -56,7 +77,10 @@
 
 #?(:clj
 (defmacro with-tuning-system
-  "Executes the body, with *tuning-system* bound to a given tuning system"
+  "Executes the body, with *tuning-system* bound to a given tuning system.
+
+   Some tuning systems need to be aware of what key you're in. This can be
+   done via `set-key!` or via the `with-key` macro."
   [tuning & body]
   `(binding [*tuning-system* ~tuning]
      ~@body)))
