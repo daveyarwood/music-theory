@@ -1,7 +1,7 @@
 (ns music-theory.pitch-test
   (:require #?(:clj  [clojure.test :refer :all]
                :cljs [cljs.test :refer-macros (deftest testing is)])
-            [music-theory.test-helpers :refer (=ish)]
+            [music-theory.test-helpers :refer (=ish round)]
             [music-theory.note  :as note]
             [music-theory.pitch :as pitch]))
 
@@ -100,7 +100,7 @@
       (is (= pitch/*tonic* :f#))
       (is (= pitch/*scale-type* :major)))))
 
-(deftest tuning-tests
+(deftest reference-pitch-tests
   (testing "set-reference-pitch!"
     (pitch/set-reference-pitch! 430)
     (is (=ish (pitch/note->hz "A4") 430))
@@ -123,3 +123,12 @@
     (is (=ish (pitch/note->hz "A4") 440))
     (is (=ish (pitch/note->hz "A3") 220))
     (is (=ish (pitch/note->hz "A5") 880))))
+
+(deftest tuning-tests
+  (testing "equal temperament"
+    (pitch/with-tuning-system :equal
+      (let [expected '(261.6 277.2 293.7 311.1 329.6 349.2
+                       370.0 392.0 415.3 440.0 466.2 493.9)
+            actual   (map pitch/midi->hz (range 60 72))]
+        (doseq [n (range 12)]
+          (is (=ish (nth expected n) (round 1 (nth actual n)))))))))

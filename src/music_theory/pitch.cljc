@@ -67,10 +67,10 @@
   `(let [[rp# ts#] (cond
                      (number? ~x)  [~x *tuning-system*]
                      (keyword? ~x) [*reference-pitch* ~x]
-                     (coll? ~x) [(or (first (filter number? ~x))
-                                     *reference-pitch*)
-                                 (or (first (filter keyword? ~x))
-                                     *tuning-system*)])]
+                     (coll? ~x)    [(or (first (filter number? ~x))
+                                        *reference-pitch*)
+                                    (or (first (filter keyword? ~x))
+                                        *tuning-system*)])]
      (binding [*reference-pitch* rp#
                *tuning-system* ts#]
        ~@body))))

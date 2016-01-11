@@ -57,7 +57,12 @@
    representing the position of the note (e.g. 4) relative to the tonic."
   [tonic note]
   (let [tonic-n (-> tonic name (str 1) ->note :number)
-        note-n  (-> note  name (str 1) ->note :number)
+        note-n  (if (number? note)
+                  ; get the number of that note in octave 1 (24-35)
+                  (if-not (<= 24 note 35)
+                    (+ 12 (rem note 24))
+                    note)
+                  (-> note name (str 1) ->note :number))
         note-n  (if (< note-n tonic-n)
                   (+ note-n 12)
                   note-n)]
