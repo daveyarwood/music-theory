@@ -17,6 +17,23 @@
   (letfn [(log2 [n] (/ (Math/log n) (Math/log 2)))]
     (Math/round (+ 69 (* 12 (log2 (/ freq ref-pitch)))))))
 
+(defn well->
+  "A higher-order function that creates a tuning function for a well-tempered
+   tuning system, given a list of 12 ratios."
+  [ratios]
+  (fn [ref-pitch midi-note tonic]
+    (assert tonic
+      "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
+    (prn :ref-pitch ref-pitch :midi-note midi-note :tonic tonic)
+    (let [octave    (note/octave midi-note)
+          base-note (:number (note/->note (str (name tonic) octave)))
+          base-hz   (equal-> ref-pitch base-note)
+          below?    (< midi-note base-note)
+          n         (note/note-position tonic midi-note)
+          ratio     (nth ratios n)
+          freq      (* base-hz ratio)]
+      (if below? (/ freq 2.0) freq))))
+
 (def werckmeister-iii-ratios
   [1
    (/ 256 243)
@@ -39,19 +56,8 @@
    on the reference pitch and the tonic, then uses the Werckmeister III ratios
    to tune based on the tonic."
   [ref-pitch midi-note tonic]
-  (assert tonic
-    "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
-  (prn :ref-pitch ref-pitch :midi-note midi-note :tonic tonic)
-  (let [octave    (note/octave midi-note)
-        base-note (:number (note/->note (str (name tonic) octave)))
-        base-hz   (equal-> ref-pitch base-note)
-        below?    (< midi-note base-note)
-        n         (note/note-position tonic midi-note)
-        ratio     (nth werckmeister-iii-ratios n)
-        freq      (* base-hz ratio)]
-    (prn :base-note base-note :base-hz base-hz :below? below?
-         :n n :ratio ratio :freq freq)
-    (if below? (/ freq 2.0) freq)))
+  (let [f (well-> werckmeister-iii-ratios)]
+    (f ref-pitch midi-note tonic)))
 
 (defn <-werckmeister-iii
   [ref-pitch frequency tonic]
