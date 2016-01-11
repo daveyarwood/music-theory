@@ -31,6 +31,19 @@
     (is (= (note/->note "G#9")  (note/->Note 128)))
     (is (= (note/->note "A9")   (note/->Note 129)))))
 
+(deftest octave-tests
+  (testing "octaves:"
+    (is (= (note/octave :Cb-1) -2))
+    (is (= (note/octave :C-1) -1))
+    (is (= (note/octave :C#-1) -1))
+    (is (= (note/octave :C0) 0))
+    (is (= (note/octave :Db0) 0))
+    (is (= (note/octave :B0) 0))
+    (is (= (note/octave :C1) 1))
+    (is (= (note/octave :C2) 2))
+    (is (= (note/octave :C#2) 2))
+    (is (= (note/octave :G2) 2))))
+
 (deftest conversion-tests
   (testing "conversions:"
     (testing "note -> MIDI note"
@@ -77,10 +90,10 @@
 (deftest key-tests
   (testing "set-key!"
     (pitch/set-key! :c# :major)
-    (is (= pitch/*tonic* :c))
+    (is (= pitch/*tonic* :c#))
     (is (= pitch/*scale-type* :major))
     (pitch/set-key! :d# :minor)
-    (is (= pitch/*tonic* :d))
+    (is (= pitch/*tonic* :d#))
     (is (= pitch/*scale-type* :minor)))
   (testing "with-key"
     (pitch/with-key :f# :major

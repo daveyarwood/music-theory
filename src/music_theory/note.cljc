@@ -45,7 +45,11 @@
   [note]
   (let [note (if (number? note)
                note
-               (:number (->note note)))]
+               (:number (->note note)))
+        ; adjust for weird skew caused by integer division on negative numbers
+        note (if (< note 12)
+               (- note 11)
+               note)]
     (quot (- note 12) 12)))
 
 (defn note-position
