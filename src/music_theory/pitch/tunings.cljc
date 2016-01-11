@@ -41,8 +41,17 @@
   [ref-pitch midi-note tonic]
   (assert tonic
     "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
-  (let [base-note (note/->note (str (name tonic) 1))
-        base-hz   (equal-> ref-pitch base-note)]))
+  (prn :ref-pitch ref-pitch :midi-note midi-note :tonic tonic)
+  (let [octave    (note/octave midi-note)
+        base-note (:number (note/->note (str (name tonic) octave)))
+        base-hz   (equal-> ref-pitch base-note)
+        below?    (< midi-note base-note)
+        n         (note/note-position tonic midi-note)
+        ratio     (nth werckmeister-iii-ratios n)
+        freq      (* base-hz ratio)]
+    (prn :base-note base-note :base-hz base-hz :below? below?
+         :n n :ratio ratio :freq freq)
+    (if below? (/ freq 2.0) freq)))
 
 (defn <-werckmeister-iii
   [ref-pitch frequency tonic]

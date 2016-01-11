@@ -125,10 +125,20 @@
     (is (=ish (pitch/note->hz "A5") 880))))
 
 (deftest tuning-tests
+  ; using https://gist.github.com/zz85/1406293 to get expected values
+  ; (I couldn't find any reliable charts, this seems like the next best thing)
   (testing "equal temperament"
     (pitch/with-tuning-system :equal
       (let [expected '(261.6 277.2 293.7 311.1 329.6 349.2
                        370.0 392.0 415.3 440.0 466.2 493.9)
             actual   (map pitch/midi->hz (range 60 72))]
         (doseq [n (range 12)]
-          (is (=ish (nth expected n) (round 1 (nth actual n)))))))))
+          (is (=ish (nth expected n) (round 1 (nth actual n))))))))
+  (testing "Werckmeister III"
+    (pitch/with-tuning-system :werckmeister-iii
+      (pitch/with-key :c :major
+        (let [expected '(261.6 275.6 292.3 310.1 327.8 348.8
+                         367.5 391.1 413.4 437.0 465.1 491.7)
+              actual   (map pitch/midi->hz (range 60 72))]
+          (doseq [n (range 12)]
+            (is (=ish (nth expected n) (round 1 (nth actual n))))))))))
