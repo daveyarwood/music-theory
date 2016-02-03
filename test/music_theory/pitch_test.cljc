@@ -125,8 +125,6 @@
     (is (=ish (pitch/note->hz "A5") 880))))
 
 (deftest tuning-tests
-  ; using https://gist.github.com/zz85/1406293 to get expected values
-  ; (I couldn't find any reliable charts, this seems like the next best thing)
   (testing "equal temperament"
     (pitch/with-tuning-system :equal
       (let [expected '(261.6 277.2 293.7 311.1 329.6 349.2
@@ -139,6 +137,22 @@
       (pitch/with-key :c :major
         (let [expected '(261.6 275.6 292.3 310.1 327.8 348.8
                          367.5 391.1 413.4 437.0 465.1 491.7)
+              actual   (map pitch/midi->hz (range 60 72))]
+          (doseq [n (range 12)]
+            (is (=ish (nth expected n) (round 1 (nth actual n)))))))))
+  (testing "just temperament"
+    (pitch/with-tuning-system :just
+      (pitch/with-key :c :major
+        (let [expected '(261.6 279.1 294.3 314.0 327.0 348.8
+                         367.9 392.4 418.6 436.0 470.9 490.5)
+              actual   (map pitch/midi->hz (range 60 72))]
+          (doseq [n (range 12)]
+            (is (=ish (nth expected n) (round 1 (nth actual n)))))))))
+  (testing "La Monte Young's tuning in The Well-Tuned Piano"
+    (pitch/with-tuning-system :young
+      (pitch/with-key :c :major
+        (let [expected '(261.6 289.7 294.3 300.5 343.4 338.0
+                         386.3 392.4 400.6 457.8 450.7 515.1)
               actual   (map pitch/midi->hz (range 60 72))]
           (doseq [n (range 12)]
             (is (=ish (nth expected n) (round 1 (nth actual n))))))))))

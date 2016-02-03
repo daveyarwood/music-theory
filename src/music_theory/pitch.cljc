@@ -101,7 +101,13 @@
     (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
 
     :werckmeister-iii
-    (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)))
+    (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
+
+    :just
+    (tunings/just-> *reference-pitch* midi-note *tonic*)
+
+    :young
+    (tunings/young-> *reference-pitch* midi-note *tonic*)))
 
 (defn note->hz
   "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into

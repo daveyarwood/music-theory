@@ -41,7 +41,7 @@
     (assert tonic
       "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
     ; TODO
-    (let [octave    (note/octave midi-note)
+    #_(let [octave    (note/octave midi-note)
           base-note (:number (note/->note (str (name tonic) octave)))
           base-hz   (equal-> ref-pitch base-note)
           below?    (< midi-note base-note)
@@ -76,6 +76,72 @@
     (f ref-pitch midi-note tonic)))
 
 (defn <-werckmeister-iii
+  [ref-pitch frequency tonic]
+  (assert tonic
+    "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
+  "TODO")
+
+(def just-ratios
+  [1
+   (/ 16 15)
+   (/ 9 8)
+   (/ 6 5)
+   (/ 5 4)
+   (/ 4 3)
+   (/ 45 32)
+   (/ 3 2)
+   (/ 8 5)
+   (/ 5 3)
+   (/ 9 5)
+   (/ 15 8)])
+
+(defn just->
+  "Just intonation is any musical tuning in which the frequencies of the notes
+   are related by ratios of small whole numbers.
+   (source: https://en.wikipedia.org/wiki/Just_intonation)
+
+   There are a lot of variations on these ratios. These ones were picked
+   somewhat arbitrarily as a good general example of just intonation.
+   (ref: http://www.sfu.ca/sonic-studio/handbook/Just_Tuning.html)"
+  [ref-pitch midi-note tonic]
+  (let [f (well-> just-ratios)]
+    (f ref-pitch midi-note tonic)))
+
+(defn <-just
+  [ref-pitch frequency tonic]
+  (assert tonic
+    "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
+  "TODO")
+
+(def young-ratios
+  [1
+   (/ 567 512)
+   (/ 9 8)
+   (/ 147 128)
+   (/ 21 16)
+   (/ 1323 1024)
+   (/ 189 128)
+   (/ 3 2)
+   (/ 49 32)
+   (/ 7 4)
+   (/ 441 256)
+   (/ 63 32)])
+
+(defn young->
+  "The piano tuning used by La Monte Young in his composition The Well-Tuned
+   Piano. It is a form of just intonation based on a modified seven-limit
+   tuning process.
+   (source: https://en.wikipedia.org/wiki/The_Well-Tuned_Piano#Tuning)
+
+   Interestingly, this scale does not uniformly ascend. A couple notes are
+   actually lower in pitch than the next note up. This is so that all perfect
+   fifths (3/2 ratios) will be spelled as perfect fifths on the keyboard.
+   (source: http://www.kylegann.com/wtp.html)"
+  [ref-pitch midi-note tonic]
+  (let [f (well-> young-ratios)]
+    (f ref-pitch midi-note tonic)))
+
+(defn <-young
   [ref-pitch frequency tonic]
   (assert tonic
     "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
