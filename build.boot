@@ -46,3 +46,10 @@
    (print-heading :heading "ClojureScript tests")
    (space)
    (test-cljs)))
+
+(deftask deploy
+  "Builds uberjar, installs it to local Maven repo, and deploys it to Clojars."
+  []
+  (comp
+    (build-jar)
+    (push-release)))
