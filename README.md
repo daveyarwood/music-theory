@@ -1,5 +1,7 @@
 # music-theory
 
+[![Clojars Project](https://img.shields.io/clojars/v/music-theory.svg)](https://clojars.org/music-theory)
+
 A music theory library for Clojure and ClojureScript, providing the systematic logic of [music theory](https://en.wikipedia.org/wiki/Music_theory) through helper functions.
 
 ## Usage
