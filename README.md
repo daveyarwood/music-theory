@@ -186,6 +186,10 @@ boot.user=> (measure? 3/4 [(dots 1 HALF) QUARTER])
 false
 ```
 
+## Contributing
+
+Pull requests welcome!
+
 ## License
 
 Copyright © 2015-2016 Dave Yarwood
