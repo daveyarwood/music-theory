@@ -87,6 +87,15 @@
       (is (=ish (pitch/note->hz "Dbb4") 261.63))
       (is (=ish (pitch/note->hz "A4") 440)))))
 
+(deftest interval-tests
+  (testing "adding intervals to MIDI note numbers"
+    (is (= 65 (note/interval+ 60 :P4)))
+    (is (= 63 (note/interval+ 60 :m3)))
+    (is (= 72 (note/interval+ 60 :P8)))
+    (is (= 69 (note/interval+ 60 :M6)))
+    (is (= 70 (note/interval+ 60 :P4 :P4)))
+    (is (= 77 (note/interval+ 60 :P4 :P4 :P5)))))
+
 (deftest key-tests
   (testing "set-key!"
     (pitch/set-key! :c# :major)

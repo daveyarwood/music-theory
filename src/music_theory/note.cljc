@@ -2,7 +2,7 @@
 
 (defrecord Note [number])
 
-(def intervals
+(def ^:private note->interval
   {"C" 0, "D" 2, "E" 4, "F" 5, "G" 7, "A" 9, "B" 11
    "c" 0, "d" 2, "e" 4, "f" 5, "g" 7, "a" 9, "b" 11})
 
@@ -19,7 +19,7 @@
       (let [octave (#?(:clj  Integer/parseInt
                        :cljs js/Number)
                     octave)
-            base-note (+ (intervals letter) (* octave 12) 12)]
+            base-note (+ (note->interval letter) (* octave 12) 12)]
         (->Note (reduce (fn [note-number accidental]
                           (case accidental
                             \# (inc note-number)
@@ -67,4 +67,85 @@
                   (+ note-n 12)
                   note-n)]
     (- note-n tonic-n)))
+
+(defn spell-note
+  "Given a letter (as a capital character like \\D) and a note number (e.g. 61
+   is one semitone above middle C), returns the correct enharmonic spelling of
+   the note (in this case, :Db4), built on that note."
+  [note-letter note-number]
+  "TODO")
+
+(def ^:private interval->semitones
+  {:P1  0  ; perfect unison
+   :m2  1  ; minor second
+   :M2  2  ; major second
+   :m3  3  ; minor third
+   :M3  4  ; major third
+   :P4  5  ; perfect fourth
+   :A4  6  ; augmented fourth
+   :d5  6  ; diminished fifth
+   :P5  7  ; perfect fifth
+   :m6  8  ; minor sixth
+   :M6  9  ; major sixth
+   :m7  10 ; minor seventh
+   :M7  11 ; major seventh
+   :P8  12 ; perfect octave
+
+   :m9  13 ; minor ninth
+   :M9  14 ; major ninth
+   :m10 15 ; minor tenth
+   :M10 16 ; major tenth
+   :P11 17 ; perfect eleventh
+   :A11 18 ; augmented eleventh
+   :d12 18 ; diminished twelfth
+   :P12 19 ; perfect twelfth
+   :m13 20 ; minor thirteenth
+   :M13 21 ; major thirteenth
+   :m14 22 ; minor fourteenth
+   :M14 23 ; major fourteenth
+   :P15 24 ; perfect fifteenth (double octave)
+   })
+
+(defn letter+
+  "Given a letter (as a capital character, like \\A) and an interval to move
+   up, returns the resulting letter (A-G), ignoring accidentals.
+
+   e.g. F + 1 == F (unison)
+        F + 2 == G (2nd)
+        F + 3 == A (3rd)
+        F + 4 == B (4th)
+        F + 8 == F (octave)"
+  [letter interval]
+  (let [letters (drop-while (partial not= letter) (cycle "ABCDEFG"))]
+    (nth letters (dec interval))))
+
+(defn interval+
+  "Given a note (spelled a particular way, e.g. \"Ab4\" or \"G#4\") and an
+   interval (which can be something like :m3 for minor third, :M3 for major
+   third, etc.), returns the correctly spelled note that interval above that
+   note.
+
+   Can take multiple intervals, all of which will be added to the note.
+
+   When given a MIDI note number, returns a MIDI note number instead of a note."
+  [note & intervals]
+  (letfn [(note+interval [note interval]
+            (if-let [interval-semitones (interval->semitones interval)]
+              (if (number? note)
+                (+ note interval-semitones)
+                (let [note-number (-> note
+                                      ->note
+                                      :number
+                                      (+ interval-semitones))
+                      steps       (-> interval
+                                      name
+                                      (subs 1)
+                                      #?(:clj  Integer/parseInt
+                                         :cljs js/Number))
+                      note-letter (letter+ (first (name note)) steps)]
+                  (spell-note note-letter note-number)))
+              (throw (new #?(:clj  Exception
+                             :cljs js/Error)
+                          (str "Invalid interval: " interval)))))]
+    (reduce note+interval note intervals)))
 
