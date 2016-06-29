@@ -4,7 +4,7 @@
 
 * Added an `interval+` function in `music-theory.note`.
 
-  See the README for example usage.
+  See the [README](https://github.com/daveyarwood/music-theory#intervals) for example usage.
 
 ## 0.1.0 (6/26/16)
 
