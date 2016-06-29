@@ -202,9 +202,9 @@ boot.user=> (interval+ :C4 :P8)
 boot.user=> (interval+ :C4 :P5)
 :G4
 
-; Intervals up to `:P15` (perfect 15th / double octave) are supported.
+; Intervals up to :P15 (perfect 15th / double octave) are supported.
 
-; You can also use `interval+` with MIDI note numbers:
+; You can also use "interval+" with MIDI note numbers:
 boot.user=> (interval+ 60 :P4)
 65
 boot.user=> (interval+ 60 :P8)
