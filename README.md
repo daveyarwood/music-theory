@@ -186,6 +186,39 @@ boot.user=> (measure? 3/4 [(dots 1 HALF) QUARTER])
 false
 ```
 
+#### Intervals
+
+```clojure
+; "interval+" takes a note and an interval and returns the note that interval
+; above the note provided.
+boot.user=> (require '[music-theory.note :refer (interval+)])
+nil
+boot.user=> (interval+ :G#4 :m3)
+:B4
+boot.user=> (interval+ :Ab4 :m3)
+:Cb5
+boot.user=> (interval+ :C4 :P8)
+:C5
+boot.user=> (interval+ :C4 :P5)
+:G4
+
+; Intervals up to `:P15` (perfect 15th / double octave) are supported.
+
+; You can also use `interval+` with MIDI note numbers:
+boot.user=> (interval+ 60 :P4)
+65
+boot.user=> (interval+ 60 :P8)
+72
+
+; "interval+" takes a variable number of arguments; all of the intervals are added to the note:
+boot.user=> (interval+ 60 :P8 :P4)
+77
+boot.user=> (interval+ :C4 :P8 :P4)
+:F5
+boot.user=> (interval+ :C4 :P8 :P8 :P8 :P8)
+:C8
+```
+
 ## Contributing
 
 Pull requests welcome!
