@@ -73,7 +73,18 @@
    is one semitone above middle C), returns the correct enharmonic spelling of
    the note (in this case, :Db4), built on that note."
   [note-letter note-number]
-  "TODO")
+  (let [base-note        (note->interval (str note-letter))
+        octaves          (iterate (fn [[n oct]]
+                                    [(+ n 12) (inc oct)])
+                                  [base-note -1])
+        [closest octave] (first (drop-while (fn [[n oct]]
+                                              (> (- note-number n) 6))
+                                            octaves))
+        delta            (- note-number closest)
+        accidentals      (apply str (if (pos? delta)
+                                      (repeat delta \#)
+                                      (repeat (- delta) \b)))]
+    (keyword (str note-letter accidentals octave))))
 
 (def ^:private interval->semitones
   {:P1  0  ; perfect unison
