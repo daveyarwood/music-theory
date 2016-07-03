@@ -89,8 +89,10 @@
   {:P1  0  ; perfect unison
    :m2  1  ; minor second
    :M2  2  ; major second
+   :d3  2  ; diminished third
    :m3  3  ; minor third
    :M3  4  ; major third
+   :A3  5  ; augmented third
    :P4  5  ; perfect fourth
    :A4  6  ; augmented fourth
    :d5  6  ; diminished fifth
