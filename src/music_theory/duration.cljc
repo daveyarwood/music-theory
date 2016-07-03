@@ -1,4 +1,5 @@
-(ns music-theory.duration)
+(ns music-theory.duration
+  (:require [music-theory.util :refer (error)]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; note lengths
@@ -75,9 +76,7 @@
                         note-value)
             ds (count (seq ds))]
         (dots ds note-value))
-      (throw (new #?(:clj  Exception
-                     :cljs js/Error)
-                  "Invalid note-length format.")))))
+      (error "Invalid note-length format."))))
 
 (declare beats)
 (defn note-length+
@@ -168,9 +167,7 @@
                                 (string? x) (->note-length x)
                                 (number? x) x
                                 (coll? x)   (apply note-length+ x)
-                                :else (throw (new #?(:clj  Exception
-                                                     :cljs js/Error)
-                                                  "Invalid note-length(s).")))]
+                                :else       (error "Invalid note-length(s)."))]
                (/ 4.0 note-value)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

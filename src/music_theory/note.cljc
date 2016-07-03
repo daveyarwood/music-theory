@@ -1,4 +1,5 @@
-(ns music-theory.note)
+(ns music-theory.note
+  (:require [music-theory.util :refer (error)]))
 
 (defrecord Note [number])
 
@@ -26,9 +27,7 @@
                             \b (dec note-number)))
                         base-note
                         accs)))
-      (throw (new #?(:clj  Exception
-                     :cljs js/Error)
-                  "Invalid note format.")))))
+      (error "Invalid note format."))))
 
 (defn note->midi
   "Converts a note in the form of a string or keyword (e.g. C#4, :Db5, A2) into
@@ -155,8 +154,6 @@
                                          :cljs js/Number))
                       note-letter (letter+ (first (name note)) steps)]
                   (spell-note note-letter note-number)))
-              (throw (new #?(:clj  Exception
-                             :cljs js/Error)
-                          (str "Invalid interval: " interval)))))]
+              (error (str "Invalid interval: " interval))))]
     (reduce note+interval note intervals)))
 
