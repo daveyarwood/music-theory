@@ -1,5 +1,5 @@
 (ns music-theory.duration
-  (:require [music-theory.util :refer (error)]))
+  (:require [music-theory.util :refer (error parse-int)]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; note lengths
@@ -71,9 +71,7 @@
   [string]
   (let [[note-value ds] (rest (re-matches #"(\d+)(\.+)?" string))]
     (if note-value
-      (let [note-value (#?(:clj  Integer/parseInt
-                           :cljs js/Number)
-                        note-value)
+      (let [note-value (parse-int note-value)
             ds (count (seq ds))]
         (dots ds note-value))
       (error "Invalid note-length format."))))

@@ -17,10 +17,7 @@
   (let [s (name x)
         [letter accs octave] (rest (re-matches #"([A-Ga-g])([#b]*)(-?\d+)" s))]
     (if (and letter accs octave)
-      (let [octave (#?(:clj  Integer/parseInt
-                       :cljs js/Number)
-                    octave)
-            base-note (+ (note->interval letter) (* octave 12) 12)]
+      (let [base-note (+ (note->interval letter) (* (parse-int octave) 12) 12)]
         (->Note (reduce (fn [note-number accidental]
                           (case accidental
                             \# (inc note-number)
