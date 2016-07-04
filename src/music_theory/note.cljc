@@ -1,5 +1,5 @@
 (ns music-theory.note
-  (:require [music-theory.util :refer (error)]))
+  (:require [music-theory.util :refer (error parse-int)]))
 
 (defrecord Note [number])
 
@@ -128,6 +128,27 @@
   (let [letters (drop-while (partial not= letter) (cycle "ABCDEFG"))]
     (nth letters (dec interval))))
 
+(defn- note+interval-fn
+  [multiplier]
+  (fn [note interval]
+    (if-let [interval-semitones (* multiplier (interval->semitones interval))]
+      (if (number? note)
+        (+ note interval-semitones)
+        (let [note-number (-> note
+                              ->note
+                              :number
+                              (+ interval-semitones))
+              steps       (-> interval
+                              name
+                              (subs 1)
+                              parse-int)
+              note-letter (letter+ (first (name note)) steps)]
+          (spell-note note-letter note-number)))
+      (error (str "Invalid interval: " interval)))))
+
+(def ^:private note+interval (note+interval-fn 1))
+(def ^:private note-minus-interval (note+interval-fn -1))
+
 (defn interval+
   "Given a note (spelled a particular way, e.g. \"Ab4\" or \"G#4\") and an
    interval (which can be something like :m3 for minor third, :M3 for major
@@ -138,21 +159,17 @@
 
    When given a MIDI note number, returns a MIDI note number instead of a note."
   [note & intervals]
-  (letfn [(note+interval [note interval]
-            (if-let [interval-semitones (interval->semitones interval)]
-              (if (number? note)
-                (+ note interval-semitones)
-                (let [note-number (-> note
-                                      ->note
-                                      :number
-                                      (+ interval-semitones))
-                      steps       (-> interval
-                                      name
-                                      (subs 1)
-                                      #?(:clj  Integer/parseInt
-                                         :cljs js/Number))
-                      note-letter (letter+ (first (name note)) steps)]
-                  (spell-note note-letter note-number)))
-              (error (str "Invalid interval: " interval))))]
-    (reduce note+interval note intervals)))
+  (reduce note+interval note intervals))
+
+(defn interval-
+  "Given a note (spelled a particular way, e.g. \"Ab4\" or \"G#4\") and an
+   interval (which can be something like :m3 for minor third, :M3 for major
+   third, etc.), returns the correctly spelled note that interval below that
+   note.
+
+   Can take multiple intervals, all of which will be subtracted from the note.
+
+   When given a MIDI note number, returns a MIDI note number instead of a note."
+  [note & intervals]
+  (reduce note-minus-interval note intervals))
 
