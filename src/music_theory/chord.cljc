@@ -72,6 +72,7 @@
    "11#5"     [:M3 :M3 :d3 :M3 :m3]
    "ø11"      [:m3 :m3 :M3 :m3 :M3]     ; half diminished eleventh
    "°11"      [:m3 :m3 :m3 :M3 :m3]     ; diminished eleventh
+   "dim11"    [:m3 :m3 :m3 :M3 :m3]
    "M13"      [:M3 :m3 :M3 :m3 :m3 :M3] ; major thirteenth
    "maj13"    [:M3 :m3 :M3 :m3 :m3 :M3]
    "13"       [:M3 :m3 :m3 :M3 :m3 :M3] ; dominant thirteenth
@@ -87,6 +88,7 @@
    "13#5"     [:M3 :M3 :d3 :M3 :m3 :M3]
    "ø13"      [:m3 :m3 :M3 :m3 :M3 :M3] ; half diminished thirteenth
    "°13"      [:m3 :m3 :m3 :M3 :m3 :M3] ; diminished thirteenth
+   "dim13"    [:m3 :m3 :m3 :M3 :m3 :M3]
    })
 
 (defn- find-inversion
