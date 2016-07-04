@@ -135,7 +135,6 @@ boot.user=> SEMIHEMIDEMISEMIQUAVER
 
 ; Custom note values can be derived by adding existing note values together
 ; with "note-length+".
-
 boot.user=> (note-length+ QUARTER QUARTER QUARTER)
 1.3333333333333333
 boot.user=> (note-length+ QUARTER QUARTER)
