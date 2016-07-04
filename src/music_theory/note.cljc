@@ -123,9 +123,18 @@
         F + 2 == G (2nd)
         F + 3 == A (3rd)
         F + 4 == B (4th)
-        F + 8 == F (octave)"
-  [letter interval]
-  (let [letters (drop-while (partial not= letter) (cycle "ABCDEFG"))]
+        F + 8 == F (octave)
+
+   If multiplier is -1, moves down instead of up.
+
+   e.g. F - 1 == F (unison)
+        F - 2 == E (2nd)
+        F - 3 == D (3rd)
+        F - 4 == C (4th)
+        F - 8 == F (octave)"
+  [letter interval & [multiplier]]
+  (let [letters (if (= multiplier -1) (reverse "ABCDEFG") "ABCDEFG")
+        letters (drop-while (partial not= letter) (cycle letters))]
     (nth letters (dec interval))))
 
 (defn- note+interval-fn
@@ -142,7 +151,7 @@
                               name
                               (subs 1)
                               parse-int)
-              note-letter (letter+ (first (name note)) steps)]
+              note-letter (letter+ (first (name note)) steps multiplier)]
           (spell-note note-letter note-number)))
       (error (str "Invalid interval: " interval)))))
 
