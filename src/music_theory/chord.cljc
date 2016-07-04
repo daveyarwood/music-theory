@@ -14,11 +14,11 @@
    "+"        [:M3 :M3]
    "+5"       [:M3 :M3]
    "5"        [:P5]                     ; fifth
-   "6"        [:M3 :m3 :P2]             ; major sixth
-   "M6"       [:M3 :m3 :P2]
-   "maj6"     [:M3 :m3 :P2]
-   "m6"       [:m3 :M3 :P2]             ; minor sixth
-   "min6"     [:m3 :M3 :P2]
+   "6"        [:M3 :m3 :M2]             ; major sixth
+   "M6"       [:M3 :m3 :M2]
+   "maj6"     [:M3 :m3 :M2]
+   "m6"       [:m3 :M3 :M2]             ; minor sixth
+   "min6"     [:m3 :M3 :M2]
    "M7"       [:M3 :m3 :M3]             ; major seventh
    "maj7"     [:M3 :m3 :M3]
    "7"        [:M3 :m3 :m3]             ; dominant seventh
