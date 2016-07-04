@@ -1,6 +1,6 @@
 (ns music-theory.chord
-  (:require [music-theory.note :refer (interval+)]
-            [music-theory.util :refer (error)]))
+  (:require [music-theory.note :refer (->note interval+ interval-)]
+            [music-theory.util :refer (error parse-int)]))
 
 (def ^:private chord-intervals
   {""         [:M3 :m3]                 ; major
@@ -89,22 +89,76 @@
    "°13"      [:m3 :m3 :m3 :M3 :m3 :M3] ; diminished thirteenth
    })
 
+(defn- find-inversion
+  "Given a bass (lowest) note and a chord (as a sequence of notes), returns
+   either the number of the inversion that would put that note in the bass,
+   or nil if that note isn't in the chord.
+
+   e.g.
+   (find-inversion \"E\"  [:C4 :E4 :G4]) ;=> 1
+   (find-inversion \"F#\" [:C4 :E4 :G4]) ;=> nil"
+  [bass chord]
+  (first (keep-indexed (fn [i note]
+                         (when (.startsWith (name note) bass) i))
+                       chord)))
+
+(defn octave-span
+  "Returns the number of octaves spanned by a chord. The chord must be provided
+   as a sequence of notes.
+
+   e.g.
+   (octave-span [:D4 :F#4 :A4])         ;=> 1
+   (octave-span [:D4 :F#4 :A4 :C#5])    ;=> 1
+   (octave-span [:D4 :F#4 :A4 :D5])     ;=> 2
+   (octave-span [:D4 :F#4 :A4 :C#5 :E5] ;=> 2
+   (octave-span [:C4 :C5 :E5 :G5 :C6]   ;=> 3"
+  [chord]
+  (let [[min max] ((juxt #(apply min %) #(apply max %))
+                   (map #(:number (->note %)) chord))
+        span      (- max min)]
+    (inc (quot span 12))))
+
+(defn- invert-chord
+  [root-chord inversion]
+  (concat (drop inversion root-chord)
+          (map #(apply interval+ % (repeat (octave-span root-chord) :P8))
+               (take inversion root-chord))))
+
 (defn build-chord
   "Given a base (lowest) note and either:
 
      - a sequence of intervals like :m3, :P5, etc.
-     - the name of a chord, like :Cmaj7 (TODO: more info)
+     - the name of a chord, like :Cmaj7
 
    Returns a list of the notes in the chord, in order from lowest to highest."
   [base-note x]
   (if (coll? x)
     (reductions interval+ base-note x)
-    (if-let [[_ bass chord] (re-matches #"([A-G][#b]*)(.*)" (name x))]
+    (if-let [[_ root chord] (re-matches #"([A-G][#b]*)(.*)" (name x))]
       (if-let [intervals (chord-intervals chord)]
-        (let [[_ note octave] (re-matches #"([A-G][#b]*)(\d+)" (name base-note))]
-          (if (= bass note)
+        (let [[_ bass octave] (re-matches #"([A-G][#b]*)(\d+)" (name base-note))]
+          (if (= root bass)
             (build-chord base-note intervals)
-            "TODO: check if bass note belongs to chord; if so, build inverted chord"))
+            (let [root-chord (build-chord (keyword (str root octave)) x)]
+              (if-let [inversion (find-inversion bass root-chord)]
+                (let [inverted-chord (invert-chord root-chord inversion)
+                      octave         (parse-int octave)
+                      octave'        (->> inverted-chord
+                                          first
+                                          name
+                                          (re-matches #"[A-G][#b]*(\d+)")
+                                          second
+                                          parse-int)]
+                  (cond
+                    (= octave octave')
+                    inverted-chord
+
+                    (= octave (inc octave'))
+                    (map #(interval+ % :P8) inverted-chord)
+
+                    (= octave (dec octave'))
+                    (map #(interval- % :P8) inverted-chord)))
+                (error (str "There is no " bass " in a " (name x)))))))
         (error (str "Unrecognized chord type: " chord)))
       (error (str "Unrecognized chord symbol: " (name x))))))
 
