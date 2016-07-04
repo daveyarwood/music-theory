@@ -189,10 +189,11 @@ false
 #### Intervals
 
 ```clojure
+boot.user=> (require '[music-theory.note :refer (interval+ interval-)])
+nil
+
 ; "interval+" takes a note and an interval and returns the note that interval
 ; above the note provided.
-boot.user=> (require '[music-theory.note :refer (interval+)])
-nil
 boot.user=> (interval+ :G#4 :m3)
 :B4
 boot.user=> (interval+ :Ab4 :m3)
@@ -202,21 +203,101 @@ boot.user=> (interval+ :C4 :P8)
 boot.user=> (interval+ :C4 :P5)
 :G4
 
+; "interval-" does the same thing, but returns the note that interval BELOW the
+; note.
+boot.user=> (interval- :G#4 :m3)
+:E#4
+boot.user=> (interval- :Ab4 :m3)
+:F4
+boot.user=> (interval- :C4 :P8)
+:C3
+boot.user=> (interval- :C4 :P5)
+:F3
+
 ; Intervals up to :P15 (perfect 15th / double octave) are supported.
 
-; You can also use "interval+" with MIDI note numbers:
+; You can also use "interval+" and "interval-" with MIDI note numbers:
 boot.user=> (interval+ 60 :P4)
 65
-boot.user=> (interval+ 60 :P8)
-72
+boot.user=> (interval- 60 :P8)
+48
 
-; "interval+" takes a variable number of arguments; all of the intervals are added to the note:
+; "interval+" and "interval-" take a variable number of arguments; all of the
+; intervals are added to/subtracted from the note:
 boot.user=> (interval+ 60 :P8 :P4)
 77
 boot.user=> (interval+ :C4 :P8 :P4)
 :F5
 boot.user=> (interval+ :C4 :P8 :P8 :P8 :P8)
 :C8
+boot.user=> (interval- :C4 :P8 :P8 :P8 :P8)
+:C0
+```
+
+#### Chords
+
+```clojure
+boot.user=> (require '[music-theory.chord :refer (octave-span build-chord)])
+nil
+
+; "build-chord" takes two arguments and returns a list of notes representing a
+; chord. The first argument is a base note, including the octave; this will be
+; the lowest note in the chord.
+;
+; The second argument can be a sequence of intervals to add onto the base note.
+; For example, a major chord consists of a major third + a minor third.
+boot.user=> (build-chord :Bb3 [:M3 :m3])
+(:Bb3 :D4 :F4)
+
+; A dominant seventh chord is a major chord with another minor third on top.
+boot.user=> (build-chord :Bb3 [:M3 :m3 :m3])
+(:Bb3 :D4 :F4 :Ab4)
+
+; The second argument to "build-chord" can also be a chord name. A variety of
+; chord types are supported.
+boot.user=> (build-chord :Bb3 :Bb7)
+(:Bb3 :D4 :F4 :Ab4)
+boot.user=> (build-chord :C4 :C)
+(:C4 :E4 :G4)
+boot.user=> (build-chord :C4 :Cm)
+(:C4 :Eb4 :G4)
+boot.user=> (build-chord :C4 :Cm7)
+(:C4 :Eb4 :G4 :Bb4)
+boot.user=> (build-chord :C4 :C7)
+(:C4 :E4 :G4 :Bb4)
+boot.user=> (build-chord :C4 :Cmaj7)
+(:C4 :E4 :G4 :B4)
+boot.user=> (build-chord :C4 :C13)
+(:C4 :E4 :G4 :Bb4 :D5 :F5 :A5)
+boot.user=> (build-chord :C4 :Cdim13)
+(:C4 :Eb4 :Gb4 :Bbb4 :Db5 :Fb5 :Ab5)
+boot.user=> (build-chord :C4 :Cdim)
+(:C4 :Eb4 :Gb4)
+boot.user=> (build-chord :C4 :C6)
+(:C4 :E4 :G4 :A4)
+boot.user=> (build-chord :C4 :C5)
+(:C4 :G4)
+boot.user=> (build-chord :C4 :C+7)
+(:C4 :E4 :G#4 :Bb4)
+boot.user=> (build-chord :C4 :C7b5)
+(:C4 :E4 :Gb4 :Bb4)
+boot.user=> (build-chord :C4 :Caug)
+(:C4 :E4 :G#4)
+
+; Inverted chords are also supported:
+boot.user=> (build-chord :C4 :Cmaj7)
+(:C4 :E4 :G4 :B4)
+boot.user=> (build-chord :E4 :Cmaj7)
+(:E4 :G4 :B4 :C5)
+boot.user=> (build-chord :G4 :Cmaj7)
+(:G4 :B4 :C5 :E5)
+boot.user=> (build-chord :B4 :Cmaj7)
+(:B4 :C5 :E5 :G5)
+
+; An exception is thrown if you try to build an inverted chord on a note that
+; doesn't belong to the chord:
+boot.user=> (build-chord :F4 :Cmaj7)
+java.lang.Exception: There is no F in a Cmaj7
 ```
 
 ## Contributing
