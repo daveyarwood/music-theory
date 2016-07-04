@@ -298,6 +298,25 @@ boot.user=> (build-chord :B4 :Cmaj7)
 ; doesn't belong to the chord:
 boot.user=> (build-chord :F4 :Cmaj7)
 java.lang.Exception: There is no F in a Cmaj7
+
+; "octave-span" tells you how many octaves are included in the chord. For
+; example, "smaller" chords like minor, major, sixth and seventh chords all
+; fit inside of one octave, so their octave span is 1. "Bigger" extended
+; chords like ninths, elevenths and thirteenths have a larger octave span.
+boot.user=> (octave-span [:C4 :G4])
+1
+boot.user=> (octave-span [:C4 :G4 :C5])
+2
+boot.user=> (octave-span [:C4 :G4 :C5 :C6])
+3
+boot.user=> (octave-span (build-chord :C4 :C))
+1
+boot.user=> (octave-span (build-chord :C4 :C7))
+1
+boot.user=> (octave-span (build-chord :C4 :C9))
+2
+boot.user=> (octave-span (build-chord :C4 :C13))
+2
 ```
 
 ## Contributing
