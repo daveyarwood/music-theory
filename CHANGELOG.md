@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.3.1 (8/10/16)
+
+* Fixed a ClojureScript-only bug re: `build-chord`.
+
 ## 0.3.0 (7/4/16)
 
 * Added an `interval-` function to `music-theory.note`. It's like `interval+`, but it subtracts the interval instead of adding it.
