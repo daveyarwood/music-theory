@@ -94,12 +94,17 @@
     :equal
     (tunings/equal-> *reference-pitch* midi-note)
 
+    :mean ; (the default is the most common, 1/4 comma meantone)
+    (tunings/quarter-comma-meantone-> *reference-pitch* midi-note *tonic*)
+    :meantone
+    (tunings/quarter-comma-meantone-> *reference-pitch* midi-note *tonic*)
+    :quarter-comma-meantone
+    (tunings/quarter-comma-meantone-> *reference-pitch* midi-note *tonic*)
+
     :well ; (the default is, somewhat arbitrarily, Werckmeister III)
     (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
-
     :werckmeister
     (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
-
     :werckmeister-iii
     (tunings/werckmeister-iii-> *reference-pitch* midi-note *tonic*)
 

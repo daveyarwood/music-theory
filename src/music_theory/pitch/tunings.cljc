@@ -17,13 +17,17 @@
   (letfn [(log2 [n] (/ (Math/log n) (Math/log 2)))]
     (Math/round (+ 69 (* 12 (log2 (/ freq ref-pitch)))))))
 
-(defn well->
-  "A higher-order function that creates a tuning function for a well-tempered
-   tuning system, given a list of 12 ratios."
+(defn ratios->
+  "A higher-order function that creates a tuning function from a list of 12
+   ratios.
+
+   Uses equal temperament as the standard for finding the starting pitch, based
+   on the reference pitch and the tonic, then uses the ratios to tune based on
+   the tonic."
   [ratios]
   (fn [ref-pitch midi-note tonic]
     (assert tonic
-      "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
+      "This tuning system is based on a tonic note; *tonic* cannot be nil.")
     (let [octave    (note/octave midi-note)
           base-note (:number (note/->note (str (name tonic) octave)))
           base-hz   (equal-> ref-pitch base-note)
@@ -33,13 +37,13 @@
           freq      (* base-hz ratio)]
       (if below? (/ freq 2.0) freq))))
 
-(defn <-well
-  "A higher-order function that creates a reverse tuning function for a
-   well-tempered tuning system, given a list of 12 ratios."
+(defn <-ratios
+  "A higher-order function that creates a reverse tuning function from a list of
+   12 ratios."
   [ratios]
   (fn [ref-pitch freq tonic]
     (assert tonic
-      "Well-tempered tunings are based on a tonic note; *tonic* cannot be nil.")
+      "This tuning system is based on a tonic note; *tonic* cannot be nil.")
     ; TODO
     #_(let [octave    (note/octave midi-note)
           base-note (:number (note/->note (str (name tonic) octave)))
@@ -49,6 +53,41 @@
           ratio     (nth ratios n)
           freq      (* base-hz ratio)]
       (if below? (/ freq 2.0) freq))))
+
+(def quarter-comma-meantone-ratios
+  (let [S (/ 8 (Math/pow 5 (/ 5 4)))
+        X (/ (Math/pow 5 (/ 7 4)) 16)
+        T (/ (Math/sqrt 5) 2)
+        P (Math/pow 5 (/ 1 4))]
+    [1
+     X
+     T
+     (* T S)
+     (Math/pow T 2)
+     (* (Math/pow T 2) S)
+     (Math/pow T 3)
+     P
+     (* P X)
+     (* P T)
+     (* P T S)
+     (* P (Math/pow T 2))
+     (* P (Math/pow T 2) S)]))
+
+(defn quarter-comma-meantone->
+  "The most common meantone temperament in the 16th and 17th centuries. The
+   perfect fifth is flattened by 1/4 of a syntonic comma, with respect to its
+   just intonation used in Pythagorean tuning (3:2).
+
+   (source: https://en.wikipedia.org/wiki/Quarter-comma_meantone#Alternative_construction)"
+  [ref-pitch midi-note tonic]
+  (let [f (ratios-> quarter-comma-meantone-ratios)]
+    (f ref-pitch midi-note tonic)))
+
+(defn <-quarter-comma-meantone
+  [ref-pitch frequency tonic]
+  (assert tonic
+    "Meantone tunings are based on a tonic note; *tonic* cannot be nil.")
+  "TODO")
 
 (def werckmeister-iii-ratios
   [1
@@ -66,13 +105,9 @@
 
 (defn werckmeister-iii->
   "Werckmeister I (III): 'correct temperament' based on 1/4 comma divisions
-   (source: https://en.wikipedia.org/wiki/Werckmeister_temperament)
-
-   Uses equal temperament as the standard for finding the starting pitch, based
-   on the reference pitch and the tonic, then uses the Werckmeister III ratios
-   to tune based on the tonic."
+   (source: https://en.wikipedia.org/wiki/Werckmeister_temperament)"
   [ref-pitch midi-note tonic]
-  (let [f (well-> werckmeister-iii-ratios)]
+  (let [f (ratios-> werckmeister-iii-ratios)]
     (f ref-pitch midi-note tonic)))
 
 (defn <-werckmeister-iii
@@ -104,7 +139,7 @@
    somewhat arbitrarily as a good general example of just intonation.
    (ref: http://www.sfu.ca/sonic-studio/handbook/Just_Tuning.html)"
   [ref-pitch midi-note tonic]
-  (let [f (well-> just-ratios)]
+  (let [f (ratios-> just-ratios)]
     (f ref-pitch midi-note tonic)))
 
 (defn <-just
@@ -138,7 +173,7 @@
    fifths (3/2 ratios) will be spelled as perfect fifths on the keyboard.
    (source: http://www.kylegann.com/wtp.html)"
   [ref-pitch midi-note tonic]
-  (let [f (well-> young-ratios)]
+  (let [f (ratios-> young-ratios)]
     (f ref-pitch midi-note tonic)))
 
 (defn <-young

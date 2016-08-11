@@ -87,6 +87,14 @@
             actual   (map pitch/midi->hz (range 60 72))]
         (doseq [n (range 12)]
           (is (=ish (nth expected n) (round 1 (nth actual n))))))))
+  (testing "quarter-comma meantone"
+    (pitch/with-tuning-system :quarter-comma-meantone
+      (pitch/with-key :c :major
+        (let [expected '(261.6 273.4 292.5 313.0 327.0 349.9
+                         365.6 391.2 408.8 437.4 468.0 489.0)
+              actual   (map pitch/midi->hz (range 60 72))]
+          (doseq [n (range 12)]
+            (is (=ish (nth expected n) (round 1 (nth actual n)))))))))
   (testing "Werckmeister III"
     (pitch/with-tuning-system :werckmeister-iii
       (pitch/with-key :c :major
