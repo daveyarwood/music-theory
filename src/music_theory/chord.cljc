@@ -1,5 +1,6 @@
 (ns music-theory.chord
-  (:require [music-theory.note :refer (->note interval+ interval-)]
+  (:require [clojure.string    :as    str]
+            [music-theory.note :refer (->note interval+ interval-)]
             [music-theory.util :refer (error parse-int)]))
 
 (def ^:private chord-intervals
@@ -101,7 +102,7 @@
    (find-inversion \"F#\" [:C4 :E4 :G4]) ;=> nil"
   [bass chord]
   (first (keep-indexed (fn [i note]
-                         (when (.startsWith (name note) bass) i))
+                         (when (str/starts-with? (name note) bass) i))
                        chord)))
 
 (defn octave-span
