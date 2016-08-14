@@ -54,6 +54,37 @@
           freq      (* base-hz ratio)]
       (if below? (/ freq 2.0) freq))))
 
+(def pythagorean-ratios
+  [1
+   (/ 256 243)
+   (/ 9 8)
+   (/ 32 27)
+   (/ 81 64)
+   (/ 4 3)
+   (/ 729 512)
+   (/ 3 2)
+   (/ 128 81)
+   (/ 27 16)
+   (/ 16 9)
+   (/ 243 128)])
+
+(defn pythagorean->
+  "Pythagorean tuning defines all notes and intervals of a scale from a series
+   of pure fifths with a ratio of 3:2. Simple, mathematical, elegant.
+
+   ...but beware of the wolf interval.
+
+  (source: http://www.medieval.org/emfaq/harmony/pyth2.html)"
+  [ref-pitch midi-note tonic]
+  (let [f (ratios-> pythagorean-ratios)]
+    (f ref-pitch midi-note tonic)))
+
+(defn <-pythagorean
+  [ref-pitch frequency tonic]
+  (assert tonic
+    "Just tunings are based on a tonic note; *tonic* cannot be nil.")
+  "TODO")
+
 (def quarter-comma-meantone-ratios
   (let [S (/ 8 (Math/pow 5 (/ 5 4)))
         X (/ (Math/pow 5 (/ 7 4)) 16)

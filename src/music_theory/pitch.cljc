@@ -94,6 +94,9 @@
     :equal
     (tunings/equal-> *reference-pitch* midi-note)
 
+    :pythagorean
+    (tunings/pythagorean-> *reference-pitch* midi-note *tonic*)
+
     :mean ; (the default is the most common, 1/4 comma meantone)
     (tunings/quarter-comma-meantone-> *reference-pitch* midi-note *tonic*)
     :meantone
