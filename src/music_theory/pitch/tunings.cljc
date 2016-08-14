@@ -70,8 +70,7 @@
      (* P X)
      (* P T)
      (* P T S)
-     (* P (Math/pow T 2))
-     (* P (Math/pow T 2) S)]))
+     (* P (Math/pow T 2))]))
 
 (defn quarter-comma-meantone->
   "The most common meantone temperament in the 16th and 17th centuries. The
